@@ -585,6 +585,10 @@ Prefab:
       propertyPath: m_LocalRotation.w
       value: 0.26111814
       objectReference: {fileID: 0}
+    - target: {fileID: 1428297543516506, guid: b8196a32f5e8fa54aa431e2139b8003f, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b8196a32f5e8fa54aa431e2139b8003f, type: 2}
   m_IsPrefabParent: 0
@@ -970,10 +974,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1499093024}
   m_HandleRect: {fileID: 1114340142}
   m_Direction: 0
-  m_MinValue: 0.01
-  m_MaxValue: 20
+  m_MinValue: 0
+  m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.01
+  m_Value: 0.2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -1035,7 +1039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1759795986
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -90,7 +90,8 @@ namespace GoogleARCore.HelloAR
             {
                 const int lostTrackingSleepTimeout = 15;
                 Screen.sleepTimeout = lostTrackingSleepTimeout;
-               // return;
+                //if (SpawnableObject.activeInHierarchy) { SpawnableObject.SetActive(false); }
+                return;
             }
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -126,12 +127,12 @@ namespace GoogleARCore.HelloAR
 
             // If the player has not touched the screen, we are done with this update.
             Touch touch;
-            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject())
+            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began || EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
             {
                 return;
             }
 
-            if (!SpawnableObject.activeInHierarchy)
+            if(!SpawnableObject.activeInHierarchy)
             {
                 SpawnableObject.SetActive(true);
             }
@@ -150,8 +151,24 @@ namespace GoogleARCore.HelloAR
         public void ChangeSpawnedSize(float newSize)
         {
             SpawnableObject.transform.parent = SpawnableObjectPivot.transform;
-            SpawnableObjectPivot.transform.localScale = Vector3.one * newSize;
+            float finalSize = Mathf.Clamp(ExpScale(newSize, 5, 50), 0.1f, Mathf.Infinity);
+            Debug.Log(finalSize);
+            SpawnableObjectPivot.transform.localScale = Vector3.one * finalSize;
             SpawnableObject.transform.parent = null;
+        }
+
+        private float ExpScale(float inputValue, float midValue, float maxValue)
+        {
+            float returnValue = 0;
+            if (inputValue < 0 || inputValue > 1) throw new System.Exception("Input value must be between 0 and 1.0");
+            if (midValue <= 0 || midValue >= maxValue) throw new System.Exception("MidValue must be greater than 0 and less than MaxValue");
+            // returnValue = A + B * Math.Exp(C * inputValue);
+            float M = maxValue / midValue;
+            float C = Mathf.Log(Mathf.Pow(M - 1, 2));
+            float B = maxValue / (Mathf.Exp(C) - 1);
+            float A = -1 * B;
+            returnValue = A + B * Mathf.Exp(C * inputValue);
+            return returnValue;
         }
 
         /// <summary>
