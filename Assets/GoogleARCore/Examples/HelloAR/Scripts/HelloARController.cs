@@ -23,6 +23,7 @@ namespace GoogleARCore.HelloAR
     using System.Collections.Generic;
     using GoogleARCore;
     using UnityEngine;
+    using UnityEngine.EventSystems;
     using UnityEngine.Rendering;
 
     /// <summary>
@@ -43,7 +44,12 @@ namespace GoogleARCore.HelloAR
         /// <summary>
         /// A model to place when a raycast from a user touch hits a plane.
         /// </summary>
-        public GameObject AndyAndroidPrefab;
+        public GameObject SpawnableObject;
+
+        /// <summary>
+        /// A model to place when a raycast from a user touch hits a plane.
+        /// </summary>
+        public GameObject SpawnableObjectPivot;
 
         /// <summary>
         /// A gameobject parenting UI for displaying the "searching for planes" snackbar.
@@ -84,7 +90,7 @@ namespace GoogleARCore.HelloAR
             {
                 const int lostTrackingSleepTimeout = 15;
                 Screen.sleepTimeout = lostTrackingSleepTimeout;
-                return;
+               // return;
             }
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -115,11 +121,19 @@ namespace GoogleARCore.HelloAR
 
             SearchingForPlaneUI.SetActive(showSearchingUI);
 
+            Vector3 pivotPos = new Vector3(FirstPersonCamera.transform.position.x, SpawnableObject.transform.position.y, FirstPersonCamera.transform.position.z);
+            SpawnableObjectPivot.transform.position = pivotPos;
+
             // If the player has not touched the screen, we are done with this update.
             Touch touch;
-            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
+            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject())
             {
                 return;
+            }
+
+            if (!SpawnableObject.activeInHierarchy)
+            {
+                SpawnableObject.SetActive(true);
             }
 
             // Raycast against the location the player touched to search for planes.
@@ -128,20 +142,16 @@ namespace GoogleARCore.HelloAR
 
             if (Session.Raycast(touch.position.x, touch.position.y, raycastFilter, out hit))
             {
-                var andyObject = Instantiate(AndyAndroidPrefab, hit.Pose.position, hit.Pose.rotation);
+                SpawnableObject.transform.SetPositionAndRotation(hit.Pose.position, hit.Pose.rotation);
 
-                // Create an anchor to allow ARCore to track the hitpoint as understanding of the physical
-                // world evolves.
-                var anchor = hit.Trackable.CreateAnchor(hit.Pose);
-
-                // Andy should look at the camera but still be flush with the plane.
-                andyObject.transform.LookAt(FirstPersonCamera.transform);
-                andyObject.transform.rotation = Quaternion.Euler(0.0f,
-                    andyObject.transform.rotation.eulerAngles.y, andyObject.transform.rotation.z);
-
-                // Make Andy model a child of the anchor.
-                andyObject.transform.parent = anchor.transform;
             }
+        }
+
+        public void ChangeSpawnedSize(float newSize)
+        {
+            SpawnableObject.transform.parent = SpawnableObjectPivot.transform;
+            SpawnableObjectPivot.transform.localScale = Vector3.one * newSize;
+            SpawnableObject.transform.parent = null;
         }
 
         /// <summary>
