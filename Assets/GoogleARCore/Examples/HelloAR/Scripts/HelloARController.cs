@@ -95,7 +95,8 @@ namespace GoogleARCore.HelloAR
             }
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
-
+            
+            //Todo: Remove plane visualization once object is stable
             // Iterate over planes found in this frame and instantiate corresponding GameObjects to visualize them.
             Frame.GetPlanes(m_NewPlanes, TrackableQueryFilter.New);
             for (int i = 0; i < m_NewPlanes.Count; i++)
